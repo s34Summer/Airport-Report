@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summertimes Travel — Daily Arrival Report</title>
+<style>
+  :root{
+    --teal-deep:#0D3B3E;
+    --teal:#16615F;
+    --sun:#F2A93B;
+    --coral:#E9614F;
+    --paper:#FBF8F2;
+    --card:#FFFFFF;
+    --case:#FCFBF7;
+    --line:#E3DCCB;
+    --line-soft:#EAE4D6;
+    --ink:#1E2A28;
+    --muted:#6B7A76;
+    --ok:#1E7A4C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .strip{
+    height:6px;
+    background:repeating-linear-gradient(90deg,var(--teal) 0 24px,var(--sun) 24px 32px);
+  }
+  header{
+    background:linear-gradient(135deg,var(--teal-deep) 0%,var(--teal) 100%);
+    color:#fff;
+    padding:26px 20px 22px;
+  }
+  .header-inner{
+    max-width:900px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .mark{flex:none;width:44px;height:44px;}
+  .brand-name{font-size:19px;font-weight:800;letter-spacing:-0.01em;}
+  .eyebrow{
+    text-transform:uppercase;letter-spacing:.14em;font-size:11px;
+    color:var(--sun);font-weight:700;margin:0;
+  }
+  h1{margin:2px 0 0;font-size:22px;font-weight:700;letter-spacing:-0.01em;}
+  .tag{color:#CFE3DF;font-size:13px;margin-top:4px;}
+
+  main{max-width:900px;margin:0 auto;padding:24px 16px 70px;}
+
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    margin-bottom:18px;
+  }
+  fieldset{border:0;margin:0;padding:20px 22px;}
+  legend{
+    font-size:12px;text-transform:uppercase;letter-spacing:.1em;
+    font-weight:700;color:var(--teal);padding:0 4px;
+  }
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+  .grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field.full{grid-column:1 / -1;}
+  label{font-size:13px;font-weight:600;color:var(--ink);}
+  input[type=text],input[type=date],input[type=time],textarea{
+    font-family:inherit;font-size:15px;padding:10px 12px;
+    border:1px solid var(--line);border-radius:3px;background:#FCFBF9;color:var(--ink);
+  }
+  input:focus,textarea:focus{outline:2px solid var(--sun);outline-offset:1px;background:#fff;}
+  textarea{resize:vertical;min-height:56px;}
+
+  .checks{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px;}
+  .chk{
+    display:flex;align-items:center;gap:9px;padding:9px 11px;
+    border:1px solid var(--line);border-radius:3px;background:#fff;
+    cursor:pointer;transition:border-color .15s,background .15s;
+  }
+  .chk:has(input:checked){border-color:var(--sun);background:#FBF1E1;}
+  .chk input{width:16px;height:16px;accent-color:var(--teal);flex:none;}
+  .chk span{font-size:13.5px;}
+
+  /* Flight cards */
+  #flightsWrap{display:flex;flex-direction:column;gap:18px;}
+  .flight-card{
+    background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden;
+  }
+  .flight-head{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--teal-deep);color:#fff;padding:11px 18px;
+  }
+  .flight-head .num{font-weight:800;font-size:14.5px;letter-spacing:.02em;}
+  .flight-actions{display:flex;gap:8px;}
+  .icon-btn{
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:3px;
+    font-size:12px;padding:5px 10px;cursor:pointer;color:#fff;
+  }
+  .icon-btn.danger{background:rgba(233,97,79,.25);border-color:rgba(233,97,79,.6);}
+  .icon-btn:hover{background:rgba(255,255,255,.22);}
+
+  .flight-body{padding:18px 20px 20px;}
+
+  /* Case sub-cards */
+  #casesWrap-placeholder{}
+  .cases-wrap{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+  .case-card{
+    background:var(--case);border:1px solid var(--line-soft);border-radius:5px;overflow:hidden;
+  }
+  .case-head{
+    display:flex;align-items:center;justify-content:space-between;
+    background:#F1ECDF;padding:8px 14px;border-bottom:1px solid var(--line-soft);
+  }
+  .case-head .num{font-weight:700;font-size:13px;color:var(--teal-deep);}
+  .case-actions{display:flex;gap:6px;}
+  .mini-btn{
+    background:#fff;border:1px solid var(--line);border-radius:3px;
+    font-size:11.5px;padding:4px 9px;cursor:pointer;color:var(--muted);
+  }
+  .mini-btn.danger{color:var(--coral);border-color:#F3CFC8;}
+  .mini-btn:hover{background:#FCFBF9;}
+  .case-body{padding:14px 16px 16px;}
+
+  .add-case-row{margin-top:8px;}
+  .add-flight-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .ghost-btn{
+    background:#fff;border:1.5px dashed var(--teal);color:var(--teal);
+    font-weight:700;font-size:14px;padding:11px 18px;border-radius:4px;cursor:pointer;
+  }
+  .ghost-btn:hover{background:#F1F7F6;}
+  .ghost-btn.small{
+    font-size:12.5px;padding:7px 13px;border-width:1.3px;
+  }
+
+  .submit-bar{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:20px 22px;
+    background:var(--card);border:1px solid var(--line);border-radius:6px;margin-top:18px;
+  }
+  button.primary{
+    background:var(--teal);color:#fff;border:0;font-size:15px;font-weight:700;
+    padding:13px 28px;border-radius:4px;cursor:pointer;
+  }
+  button.primary:hover{background:var(--teal-deep);}
+  button.primary:disabled{opacity:.6;cursor:default;}
+  .status{font-size:14px;font-weight:600;}
+  .status.err{color:#B3261E;}
+  .count-pill{
+    margin-left:auto;font-size:12.5px;color:var(--muted);
+    background:#F1ECDF;padding:6px 12px;border-radius:20px;
+  }
+
+  #okScreen{
+    display:none;background:var(--card);border:1px solid var(--line);border-radius:6px;
+    padding:52px 24px;text-align:center;
+  }
+  #okScreen h2{margin:0 0 8px;color:var(--teal-deep);}
+  #okScreen p{color:var(--muted);margin:0 0 20px;}
+  #okScreen button{background:transparent;color:var(--teal);border:1px solid var(--teal);
+    font-weight:700;padding:11px 22px;border-radius:4px;cursor:pointer;}
+
+  footer{max-width:900px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:12px;}
+
+  @media (max-width:600px){
+    .grid, .grid.cols-3{grid-template-columns:1fr;}
+    .checks{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+  <div class="strip"></div>
+  <header>
+    <div class="header-inner">
+      <svg class="mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="19" r="10" fill="#F2A93B"/>
+        <path d="M4 33c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 12 0" stroke="#FBF8F2" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+        <path d="M4 40c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 12 0" stroke="#FBF8F2" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".6"/>
+      </svg>
+      <div>
+        <div class="brand-name">Summertimes Travel</div>
+        <p class="eyebrow">Ground Operations</p>
+        <h1>Daily Arrival Report</h1>
+        <p class="tag">Log every flight and every booking case handled today, in one report.</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <form id="dailyForm">
+      <div class="panel">
+        <fieldset>
+          <legend>Report details</legend>
+          <div class="grid">
+            <div class="field">
+              <label for="controller">Airport controller name</label>
+              <input type="text" id="controller" required placeholder="Your name">
+            </div>
+            <div class="field">
+              <label for="reportDate">Date</label>
+              <input type="date" id="reportDate" required>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div id="flightsWrap"></div>
+
+      <div class="add-flight-row">
+        <button type="button" class="ghost-btn" id="addFlightBtn">+ Add flight</button>
+      </div>
+
+      <div class="submit-bar">
+        <button type="submit" class="primary" id="submitBtn">Submit daily report</button>
+        <span id="statusMsg" class="status"></span>
+        <span class="count-pill" id="countPill">1 flight &middot; 1 case logged</span>
+      </div>
+    </form>
+
+    <div id="okScreen">
+      <h2>Daily report submitted</h2>
+      <p>Thanks — today's arrival report has been sent.</p>
+      <button id="resetBtn" type="button">Start a new daily report</button>
+    </div>
+  </main>
+
+  <footer>Summertimes Travel &middot; Daily Arrival Report &middot; internal use</footer>
+
+<script>
+  // 1. Sign up free at https://formspree.io
+  // 2. Create a new form, copy its endpoint URL
+  // 3. Paste it below in place of YOUR_FORM_ID
+  const ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+
+  const ISSUES = [
+    "No Show",
+    "Go Show",
+    "Excess Luggage",
+    "Delayed Flight",
+    "Damaged/Lost Luggage",
+    "No departure transfer request",
+    "No arrival transfer, but they want departure transfer",
+    "Make own way",
+    "Upgraded transfer to Vito",
+    "Other"
+  ];
+
+  const flightsWrap = document.getElementById('flightsWrap');
+  const countPill = document.getElementById('countPill');
+  let flightSeq = 0;
+
+  function checksHTML(){
+    return ISSUES.map(label => `
+      <label class="chk">
+        <input type="checkbox" data-field="issue" value="${label}">
+        <span>${label}</span>
+      </label>
+    `).join('');
+  }
+
+  function makeCaseCard(){
+    const card = document.createElement('div');
+    card.className = 'case-card';
+    card.innerHTML = `
+      <div class="case-head">
+        <span class="num">Case</span>
+        <div class="case-actions">
+          <button type="button" class="mini-btn dup-case-btn">Duplicate</button>
+          <button type="button" class="mini-btn danger remove-case-btn">Remove</button>
+        </div>
+      </div>
+      <div class="case-body">
+        <div class="grid cols-3">
+          <div class="field">
+            <label>Reference number</label>
+            <input type="text" data-field="reference" placeholder="Booking / job ref">
+          </div>
+          <div class="field">
+            <label>Client name</label>
+            <input type="text" data-field="clientName">
+          </div>
+          <div class="field">
+            <label>Client hotel</label>
+            <input type="text" data-field="clientHotel">
+          </div>
+          <div class="field full">
+            <label>Tour operator</label>
+            <input type="text" data-field="tourOperator" placeholder="e.g. Easy Jet, Dertour">
+          </div>
+        </div>
+
+        <div class="field full" style="margin-top:14px;">
+          <label>Issues (tick all that apply)</label>
+          <div class="checks">${checksHTML()}</div>
+        </div>
+
+        <div class="field full" style="margin-top:12px;">
+          <label>Comments</label>
+          <textarea data-field="comments" placeholder="Add any relevant detail..."></textarea>
+        </div>
+      </div>
+    `;
+
+    card.querySelector('.remove-case-btn').addEventListener('click', () => {
+      const casesWrap = card.parentElement;
+      if (casesWrap.children.length <= 1) return; // keep at least one case per flight
+      card.remove();
+      renumberAll();
+    });
+
+    card.querySelector('.dup-case-btn').addEventListener('click', () => {
+      const clone = makeCaseCard();
+      card.after(clone);
+      const srcInputs = card.querySelectorAll('input[data-field], textarea[data-field]');
+      const dstInputs = clone.querySelectorAll('input[data-field], textarea[data-field]');
+      srcInputs.forEach((src, i) => {
+        const dst = dstInputs[i];
+        if (src.type === 'checkbox') dst.checked = src.checked;
+        else dst.value = src.value;
+      });
+      renumberAll();
+    });
+
+    return card;
+  }
+
+  function makeFlightCard(){
+    flightSeq++;
+    const card = document.createElement('div');
+    card.className = 'flight-card';
+    card.innerHTML = `
+      <div class="flight-head">
+        <span class="num">Flight ${flightSeq}</span>
+        <div class="flight-actions">
+          <button type="button" class="icon-btn dup-flight-btn">Duplicate</button>
+          <button type="button" class="icon-btn danger remove-flight-btn">Remove</button>
+        </div>
+      </div>
+      <div class="flight-body">
+        <div class="grid cols-3">
+          <div class="field">
+            <label>Flight number</label>
+            <input type="text" data-field="flightNumber" placeholder="e.g. BA2591">
+          </div>
+          <div class="field">
+            <label>Actual arrival time</label>
+            <input type="time" data-field="arrivalTime">
+          </div>
+          <div class="field">
+            <label>Time bus left</label>
+            <input type="time" data-field="busLeft">
+          </div>
+        </div>
+
+        <div class="field full" style="margin-top:16px;">
+          <label>Booking cases for this flight</label>
+          <div class="cases-wrap"></div>
+          <div class="add-case-row">
+            <button type="button" class="ghost-btn small add-case-btn">+ Add case</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const casesWrap = card.querySelector('.cases-wrap');
+    casesWrap.appendChild(makeCaseCard());
+
+    card.querySelector('.add-case-btn').addEventListener('click', () => {
+      casesWrap.appendChild(makeCaseCard());
+      renumberAll();
+    });
+
+    card.querySelector('.remove-flight-btn').addEventListener('click', () => {
+      if (flightsWrap.children.length <= 1) return; // keep at least one flight
+      card.remove();
+      renumberAll();
+    });
+
+    card.querySelector('.dup-flight-btn').addEventListener('click', () => {
+      const clone = makeFlightCard();
+      card.after(clone);
+      // copy flight-level fields only; leave a single fresh case in the clone
+      const srcInputs = card.querySelectorAll('.flight-body > .grid [data-field]');
+      const dstInputs = clone.querySelectorAll('.flight-body > .grid [data-field]');
+      srcInputs.forEach((src, i) => { dstInputs[i].value = src.value; });
+      renumberAll();
+    });
+
+    return card;
+  }
+
+  function renumberAll(){
+    let totalCases = 0;
+    [...flightsWrap.children].forEach((fcard, fi) => {
+      fcard.querySelector('.num').textContent = `Flight ${fi + 1}`;
+      const cases = fcard.querySelectorAll('.case-card');
+      cases.forEach((ccard, ci) => {
+        ccard.querySelector('.case-head .num').textContent = `Case ${ci + 1}`;
+        totalCases++;
+      });
+    });
+    const fCount = flightsWrap.children.length;
+    countPill.textContent = `${fCount} flight${fCount > 1 ? 's' : ''} \u00b7 ${totalCases} case${totalCases > 1 ? 's' : ''} logged`;
+  }
+
+  document.getElementById('addFlightBtn').addEventListener('click', () => {
+    flightsWrap.appendChild(makeFlightCard());
+    renumberAll();
+  });
+
+  // seed with one flight (which seeds with one case)
+  flightsWrap.appendChild(makeFlightCard());
+  renumberAll();
+
+  // default date to today
+  document.getElementById('reportDate').valueAsDate = new Date();
+
+  function buildSummary(){
+    const controller = document.getElementById('controller').value.trim();
+    const date = document.getElementById('reportDate').value;
+    let text = `Daily Arrival Report\nController: ${controller}\nDate: ${date}\n\n`;
+
+    [...flightsWrap.children].forEach((fcard, fi) => {
+      const fget = (f) => fcard.querySelector(`.flight-body > .grid [data-field="${f}"]`)?.value.trim() || '';
+      text += `Flight ${fi + 1}\n`;
+      text += `  Flight Number: ${fget('flightNumber')}\n`;
+      text += `  Actual Arrival Time: ${fget('arrivalTime')}\n`;
+      text += `  Time Bus Left: ${fget('busLeft')}\n`;
+
+      const cases = fcard.querySelectorAll('.case-card');
+      cases.forEach((ccard, ci) => {
+        const cget = (f) => ccard.querySelector(`[data-field="${f}"]`)?.value.trim() || '';
+        const issues = [...ccard.querySelectorAll('input[data-field="issue"]:checked')].map(c => c.value);
+        text += `  Case ${ci + 1}\n`;
+        text += `    Reference Number: ${cget('reference')}\n`;
+        text += `    Client Name: ${cget('clientName')}\n`;
+        text += `    Client Hotel: ${cget('clientHotel')}\n`;
+        text += `    Tour Operator: ${cget('tourOperator')}\n`;
+        text += `    Issues: ${issues.length ? issues.join(', ') : 'None'}\n`;
+        text += `    Comments: ${cget('comments')}\n`;
+      });
+      text += `\n`;
+    });
+
+    return text;
+  }
+
+  const form = document.getElementById('dailyForm');
+  const statusMsg = document.getElementById('statusMsg');
+  const submitBtn = document.getElementById('submitBtn');
+  const okScreen = document.getElementById('okScreen');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    statusMsg.textContent = '';
+    statusMsg.className = 'status';
+
+    const controller = document.getElementById('controller').value.trim();
+    if (!controller) {
+      statusMsg.textContent = 'Please enter the airport controller name.';
+      statusMsg.className = 'status err';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+
+    const summary = buildSummary();
+    const date = document.getElementById('reportDate').value;
+    const totalCases = flightsWrap.querySelectorAll('.case-card').length;
+
+    const payload = new FormData();
+    payload.append('_subject', `Daily Arrival Report — ${controller} — ${date}`);
+    payload.append('Controller', controller);
+    payload.append('Date', date);
+    payload.append('Flights Logged', flightsWrap.children.length);
+    payload.append('Cases Logged', totalCases);
+    payload.append('Report', summary);
+
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        body: payload,
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        form.style.display = 'none';
+        okScreen.style.display = 'block';
+      } else {
+        throw new Error('Submission failed');
+      }
+    } catch (err) {
+      statusMsg.textContent = 'Something went wrong — please try again.';
+      statusMsg.className = 'status err';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit daily report';
+    }
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    flightsWrap.innerHTML = '';
+    flightSeq = 0;
+    flightsWrap.appendChild(makeFlightCard());
+    renumberAll();
+    document.getElementById('controller').value = '';
+    document.getElementById('reportDate').valueAsDate = new Date();
+    form.style.display = 'block';
+    okScreen.style.display = 'none';
+  });
+</script>
+</body>
+</html>
