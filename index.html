@@ -342,7 +342,15 @@
         <div class="grid cols-3">
           <div class="field">
             <label>Flight number</label>
-            <input type="text" data-field="flightNumber" placeholder="e.g. BA2591">
+            <input type="text" data-field="flightNumber" placeholder="e.g. EZY2901">
+          </div>
+          <div class="field">
+            <label>Route</label>
+            <input type="text" data-field="route" placeholder="e.g. BRS-PFO">
+          </div>
+          <div class="field">
+            <label>Scheduled arrival time</label>
+            <input type="time" data-field="schedTime">
           </div>
           <div class="field">
             <label>Actual arrival time</label>
@@ -417,18 +425,46 @@
   // default date to today
   document.getElementById('reportDate').valueAsDate = new Date();
 
+  function escapeHtml(str){
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function formatDM(dateStr){
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${dd}/${mm}`;
+  }
+
+  function formatDotTime(t){
+    // "20:30" -> "20.30"
+    return t ? t.replace(':', '.') : '';
+  }
+
   function buildSummary(){
-    const controller = document.getElementById('controller').value.trim();
     const date = document.getElementById('reportDate').value;
-    let text = `Daily Arrival Report\nController: ${controller}\nDate: ${date}\n\n`;
+    const titleLine = `ARRIVALS ${formatDM(date)}`;
+
+    let textPlain = `${titleLine}\n\n`;
+    let textHtml = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1E2A28;line-height:1.5;">`;
+    textHtml += `<h2 style="margin:0 0 16px;color:#0D3B3E;">${escapeHtml(titleLine)}</h2>`;
 
     [...flightsWrap.children].forEach((fcard) => {
       const fget = (f) => fcard.querySelector(`.flight-body > .grid [data-field="${f}"]`)?.value.trim() || '';
-      const flightNumber = fget('flightNumber') || '(no flight number)';
-      const arrivalTime = fget('arrivalTime') || '(no arrival time)';
-      const busLeft = fget('busLeft') || '(no bus time)';
+      const flightNumber = fget('flightNumber');
+      const route = fget('route');
+      const schedTime = formatDotTime(fget('schedTime'));
+      const arrivalTime = formatDotTime(fget('arrivalTime'));
 
-      text += `FLIGHT ${flightNumber} — ARRIVED ${arrivalTime} — BUS LEFT ${busLeft}\n`;
+      const headerParts = [flightNumber, route, schedTime].filter(Boolean).join(' ');
+      const header = `${headerParts}${arrivalTime ? ' ARR.' + arrivalTime : ''}`.trim();
+
+      textPlain += `${header}\n`;
+      textHtml += `<p style="margin:16px 0 4px;"><strong><u>${escapeHtml(header)}</u></strong></p>`;
 
       const cases = fcard.querySelectorAll('.case-card');
       cases.forEach((ccard) => {
@@ -440,17 +476,20 @@
         const clientHotel = cget('clientHotel');
         const comments = cget('comments');
 
-        let line = `REF;${reference}-${clientName}`;
-        if (clientHotel) line += `@${clientHotel}`;
+        let line = `REF.${reference} ${clientName}`;
+        if (clientHotel) line += ` @ ${clientHotel}`;
         if (issues.length) line += `, ${issues.join(', ')}.`;
         if (comments) line += ` ${comments}`;
 
-        text += `${line}\n`;
+        textPlain += `${line}\n`;
+        textHtml += `<div>${escapeHtml(line)}</div>`;
       });
-      text += `\n`;
+      textPlain += `\n`;
     });
 
-    return text;
+    textHtml += `</div>`;
+
+    return { textPlain, textHtml };
   }
 
   const form = document.getElementById('dailyForm');
@@ -473,7 +512,7 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending...';
 
-    const summary = buildSummary();
+    const { textPlain, textHtml } = buildSummary();
     const date = document.getElementById('reportDate').value;
     const totalCases = flightsWrap.querySelectorAll('.case-card').length;
 
@@ -483,7 +522,8 @@
     payload.append('Date', date);
     payload.append('Flights Logged', flightsWrap.children.length);
     payload.append('Cases Logged', totalCases);
-    payload.append('Report', summary);
+    payload.append('Report', textPlain);
+    payload.append('ReportHtml', textHtml);
 
     try {
       // Apps Script Web Apps don't return CORS headers the browser can read,
