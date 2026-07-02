@@ -231,10 +231,8 @@
   <footer>Summertimes Travel &middot; Daily Arrival Report &middot; internal use</footer>
 
 <script>
-  // 1. Sign up free at https://formspree.io
-  // 2. Create a new form, copy its endpoint URL
-  // 3. Paste it below in place of YOUR_FORM_ID
-  const ENDPOINT = "https://script.google.com/macros/s/AKfycbyYsBdVRUfixuAO9h2duCeJykoleCrwWBJ2y4bPyn4sPtZBfOEQ-9EDIgaIP-51-BQs/exec";
+  // Backend: Google Apps Script Web App (receives POST, logs to Sheet, sends email)
+  const ENDPOINT = "https://script.google.com/macros/s/AKfycbz_b80_mLjreb37hMxUuPNtUy9QplpE6aDfSqVYQAG6F1SXFUogVqnieutJ2_XToxGCFg/exec";
 
   const ISSUES = [
     "No Show",
@@ -242,7 +240,7 @@
     "Excess Luggage",
     "Delayed Flight",
     "Damaged/Lost Luggage",
-    "No departure transfer request",
+    "No Departure needed",
     "No arrival transfer, but they want departure transfer",
     "Make own way",
     "Upgraded transfer to Vito",
@@ -424,24 +422,30 @@
     const date = document.getElementById('reportDate').value;
     let text = `Daily Arrival Report\nController: ${controller}\nDate: ${date}\n\n`;
 
-    [...flightsWrap.children].forEach((fcard, fi) => {
+    [...flightsWrap.children].forEach((fcard) => {
       const fget = (f) => fcard.querySelector(`.flight-body > .grid [data-field="${f}"]`)?.value.trim() || '';
-      text += `Flight ${fi + 1}\n`;
-      text += `  Flight Number: ${fget('flightNumber')}\n`;
-      text += `  Actual Arrival Time: ${fget('arrivalTime')}\n`;
-      text += `  Time Bus Left: ${fget('busLeft')}\n`;
+      const flightNumber = fget('flightNumber') || '(no flight number)';
+      const arrivalTime = fget('arrivalTime') || '(no arrival time)';
+      const busLeft = fget('busLeft') || '(no bus time)';
+
+      text += `FLIGHT ${flightNumber} — ARRIVED ${arrivalTime} — BUS LEFT ${busLeft}\n`;
 
       const cases = fcard.querySelectorAll('.case-card');
-      cases.forEach((ccard, ci) => {
+      cases.forEach((ccard) => {
         const cget = (f) => ccard.querySelector(`[data-field="${f}"]`)?.value.trim() || '';
         const issues = [...ccard.querySelectorAll('input[data-field="issue"]:checked')].map(c => c.value);
-        text += `  Case ${ci + 1}\n`;
-        text += `    Reference Number: ${cget('reference')}\n`;
-        text += `    Client Name: ${cget('clientName')}\n`;
-        text += `    Client Hotel: ${cget('clientHotel')}\n`;
-        text += `    Tour Operator: ${cget('tourOperator')}\n`;
-        text += `    Issues: ${issues.length ? issues.join(', ') : 'None'}\n`;
-        text += `    Comments: ${cget('comments')}\n`;
+
+        const reference = cget('reference') || '(no ref)';
+        const clientName = cget('clientName') || '(no name)';
+        const clientHotel = cget('clientHotel');
+        const comments = cget('comments');
+
+        let line = `REF;${reference}-${clientName}`;
+        if (clientHotel) line += `@${clientHotel}`;
+        if (issues.length) line += `, ${issues.join(', ')}.`;
+        if (comments) line += ` ${comments}`;
+
+        text += `${line}\n`;
       });
       text += `\n`;
     });
@@ -482,17 +486,15 @@
     payload.append('Report', summary);
 
     try {
-      const res = await fetch(ENDPOINT, {
+      // Apps Script Web Apps don't return CORS headers the browser can read,
+      // so we send with no-cors and treat "fetch didn't throw" as success.
+      await fetch(ENDPOINT, {
         method: 'POST',
         body: payload,
-        headers: { 'Accept': 'application/json' }
+        mode: 'no-cors'
       });
-      if (res.ok) {
-        form.style.display = 'none';
-        okScreen.style.display = 'block';
-      } else {
-        throw new Error('Submission failed');
-      }
+      form.style.display = 'none';
+      okScreen.style.display = 'block';
     } catch (err) {
       statusMsg.textContent = 'Something went wrong — please try again.';
       statusMsg.className = 'status err';
