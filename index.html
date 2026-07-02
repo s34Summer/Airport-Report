@@ -275,19 +275,19 @@
         <div class="grid cols-3">
           <div class="field">
             <label>Reference number</label>
-            <input type="text" data-field="reference" placeholder="Booking / job ref">
+            <input type="text" data-field="reference" placeholder="Booking / job ref" required>
           </div>
           <div class="field">
             <label>Client name</label>
-            <input type="text" data-field="clientName">
+            <input type="text" data-field="clientName" required>
           </div>
           <div class="field">
             <label>Client hotel</label>
-            <input type="text" data-field="clientHotel">
+            <input type="text" data-field="clientHotel" required>
           </div>
           <div class="field full">
             <label>Tour operator</label>
-            <input type="text" data-field="tourOperator" placeholder="e.g. Easy Jet, Dertour">
+            <input type="text" data-field="tourOperator" placeholder="e.g. Easy Jet, Dertour" required>
           </div>
         </div>
 
@@ -298,7 +298,7 @@
 
         <div class="field full" style="margin-top:12px;">
           <label>Comments</label>
-          <textarea data-field="comments" placeholder="Add any relevant detail..."></textarea>
+          <textarea data-field="comments" placeholder="Add any relevant detail..." required></textarea>
         </div>
       </div>
     `;
@@ -342,23 +342,23 @@
         <div class="grid cols-3">
           <div class="field">
             <label>Flight number</label>
-            <input type="text" data-field="flightNumber" placeholder="e.g. EZY2901">
+            <input type="text" data-field="flightNumber" placeholder="e.g. EZY2901" required>
           </div>
           <div class="field">
             <label>Route</label>
-            <input type="text" data-field="route" placeholder="e.g. BRS-PFO">
+            <input type="text" data-field="route" placeholder="e.g. BRS-PFO" required>
           </div>
           <div class="field">
             <label>Scheduled arrival time</label>
-            <input type="time" data-field="schedTime">
+            <input type="time" data-field="schedTime" required>
           </div>
           <div class="field">
             <label>Actual arrival time</label>
-            <input type="time" data-field="arrivalTime">
+            <input type="time" data-field="arrivalTime" required>
           </div>
           <div class="field">
             <label>Time bus left</label>
-            <input type="time" data-field="busLeft">
+            <input type="time" data-field="busLeft" required>
           </div>
         </div>
 
@@ -459,9 +459,13 @@
       const route = fget('route');
       const schedTime = formatDotTime(fget('schedTime'));
       const arrivalTime = formatDotTime(fget('arrivalTime'));
+      const busLeft = formatDotTime(fget('busLeft'));
 
       const headerParts = [flightNumber, route, schedTime].filter(Boolean).join(' ');
-      const header = `${headerParts}${arrivalTime ? ' ARR.' + arrivalTime : ''}`.trim();
+      let header = headerParts;
+      if (arrivalTime) header += ` ARR.${arrivalTime}`;
+      if (busLeft) header += ` BUS.${busLeft}`;
+      header = header.trim();
 
       textPlain += `${header}\n`;
       textHtml += `<p style="margin:16px 0 4px;"><strong><u>${escapeHtml(header)}</u></strong></p>`;
@@ -507,6 +511,20 @@
       statusMsg.textContent = 'Please enter the airport controller name.';
       statusMsg.className = 'status err';
       return;
+    }
+
+    // Every case must have at least one issue ticked
+    const allCases = flightsWrap.querySelectorAll('.case-card');
+    for (const ccard of allCases) {
+      const anyChecked = ccard.querySelector('input[data-field="issue"]:checked');
+      if (!anyChecked) {
+        statusMsg.textContent = 'Every case needs at least one issue ticked.';
+        statusMsg.className = 'status err';
+        ccard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        ccard.style.outline = '2px solid #E9614F';
+        setTimeout(() => { ccard.style.outline = ''; }, 2500);
+        return;
+      }
     }
 
     submitBtn.disabled = true;
