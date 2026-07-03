@@ -506,7 +506,7 @@
 
       const headerParts = [flightNumber, route, schedTime].filter(Boolean).join(' ');
       let header = headerParts;
-      if (arrivalTime) header += ` ARR.${arrivalTime}`;
+      if (arrivalTime) header += ` Arrived at ${arrivalTime}`;
       if (busLeft) header += ` Bus left at ${busLeft}`;
       header = header.trim();
 
@@ -519,11 +519,14 @@
         const issues = [...ccard.querySelectorAll('input[data-field="issue"]:checked')].map(c => c.value);
 
         const reference = cget('reference') || '(no ref)';
+        const tourOperator = cget('tourOperator');
         const clientName = cget('clientName') || '(no name)';
         const clientHotel = cget('clientHotel');
         const comments = cget('comments');
 
-        let line = `REF.${reference} ${clientName}`;
+        let line = `REF.${reference}`;
+        if (tourOperator) line += ` ${tourOperator}`;
+        line += ` - ${clientName}`;
         if (clientHotel) line += ` @ ${clientHotel}`;
         if (issues.length) line += `, ${issues.join(', ')}.`;
         if (comments) line += ` ${comments}`;
