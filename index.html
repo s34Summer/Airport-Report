@@ -77,6 +77,16 @@
   input:focus,textarea:focus{outline:2px solid var(--sun);outline-offset:1px;background:#fff;}
   textarea{resize:vertical;min-height:56px;}
 
+  .time-select{display:flex;align-items:center;gap:6px;}
+  .time-select select{
+    font-family:inherit;font-size:15px;padding:10px 8px;
+    border:1px solid var(--line);border-radius:3px;background:#FCFBF9;color:var(--ink);
+    flex:1;min-width:0;
+  }
+  .time-select select:invalid{color:var(--muted);}
+  .time-select select:focus{outline:2px solid var(--sun);outline-offset:1px;background:#fff;}
+  .time-select span{color:var(--muted);font-weight:700;}
+
   .checks{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px;}
   .chk{
     display:flex;align-items:center;gap:9px;padding:9px 11px;
@@ -244,6 +254,7 @@
     "No arrival transfer, but they want departure transfer",
     "Make own way",
     "Upgraded transfer to Vito",
+    "Wheelchair Assistance on departure",
     "Other"
   ];
 
@@ -258,6 +269,24 @@
         <span>${label}</span>
       </label>
     `).join('');
+  }
+
+  function hourOptionsHTML(){
+    let html = '<option value="" disabled selected>HH</option>';
+    for (let h = 0; h < 24; h++) {
+      const v = String(h).padStart(2, '0');
+      html += `<option value="${v}">${v}</option>`;
+    }
+    return html;
+  }
+
+  function minuteOptionsHTML(){
+    let html = '<option value="" disabled selected>MM</option>';
+    for (let m = 0; m < 60; m++) {
+      const v = String(m).padStart(2, '0');
+      html += `<option value="${v}">${v}</option>`;
+    }
+    return html;
   }
 
   function makeCaseCard(){
@@ -350,15 +379,27 @@
           </div>
           <div class="field">
             <label>Scheduled arrival time</label>
-            <input type="time" data-field="schedTime" required>
+            <div class="time-select">
+              <select data-field="schedTime_hh" required>${hourOptionsHTML()}</select>
+              <span>:</span>
+              <select data-field="schedTime_mm" required>${minuteOptionsHTML()}</select>
+            </div>
           </div>
           <div class="field">
             <label>Actual arrival time</label>
-            <input type="time" data-field="arrivalTime" required>
+            <div class="time-select">
+              <select data-field="arrivalTime_hh" required>${hourOptionsHTML()}</select>
+              <span>:</span>
+              <select data-field="arrivalTime_mm" required>${minuteOptionsHTML()}</select>
+            </div>
           </div>
           <div class="field">
             <label>Time bus left</label>
-            <input type="time" data-field="busLeft" required>
+            <div class="time-select">
+              <select data-field="busLeft_hh" required>${hourOptionsHTML()}</select>
+              <span>:</span>
+              <select data-field="busLeft_mm" required>${minuteOptionsHTML()}</select>
+            </div>
           </div>
         </div>
 
@@ -440,9 +481,11 @@
     return `${dd}/${mm}`;
   }
 
-  function formatDotTime(t){
-    // "20:30" -> "20.30"
-    return t ? t.replace(':', '.') : '';
+  function getTime(fcard, field){
+    const hh = fcard.querySelector(`.flight-body > .grid [data-field="${field}_hh"]`)?.value || '';
+    const mm = fcard.querySelector(`.flight-body > .grid [data-field="${field}_mm"]`)?.value || '';
+    if (!hh || !mm) return '';
+    return `${hh}.${mm}`;
   }
 
   function buildSummary(){
@@ -457,14 +500,14 @@
       const fget = (f) => fcard.querySelector(`.flight-body > .grid [data-field="${f}"]`)?.value.trim() || '';
       const flightNumber = fget('flightNumber');
       const route = fget('route');
-      const schedTime = formatDotTime(fget('schedTime'));
-      const arrivalTime = formatDotTime(fget('arrivalTime'));
-      const busLeft = formatDotTime(fget('busLeft'));
+      const schedTime = getTime(fcard, 'schedTime');
+      const arrivalTime = getTime(fcard, 'arrivalTime');
+      const busLeft = getTime(fcard, 'busLeft');
 
       const headerParts = [flightNumber, route, schedTime].filter(Boolean).join(' ');
       let header = headerParts;
       if (arrivalTime) header += ` ARR.${arrivalTime}`;
-      if (busLeft) header += ` BUS.${busLeft}`;
+      if (busLeft) header += ` Bus left at ${busLeft}`;
       header = header.trim();
 
       textPlain += `${header}\n`;
