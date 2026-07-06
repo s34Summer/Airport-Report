@@ -524,18 +524,20 @@
         const clientHotel = cget('clientHotel');
         const comments = cget('comments');
 
-        let line = `REF.${reference}`;
-        if (tourOperator) line += ` ${tourOperator}`;
-        line += ` - ${clientName}`;
-        if (clientHotel) line += ` @ ${clientHotel}`;
-        if (issues.length) line += `, ${issues.join(', ')}.`;
-        if (comments) line += ` ${comments}`;
+       const refPart = `REF.${reference}`;
+       let restPart = '';
+       if (tourOperator) restPart += ` ${tourOperator}`;
+       restPart += ` - ${clientName}`;
+       if (clientHotel) restPart += ` @ ${clientHotel}`;
+       if (issues.length) restPart += `, ${issues.join(', ')}.`;
+       if (comments) restPart += ` ${comments}`;
 
-        textPlain += `${line}\n`;
-        textHtml += `<div>${escapeHtml(line)}</div>`;
+      const line = refPart + restPart;
+      textPlain += `${line}\n`;
+      textHtml += `<div><strong>${escapeHtml(refPart)}</strong>${escapeHtml(restPart)}</div>`;
       });
       textPlain += `\n`;
-    });
+      });
 
     textHtml += `</div>`;
 
