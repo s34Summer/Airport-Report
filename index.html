@@ -148,9 +148,6 @@
     background:#E8F3EC;border-color:#1E7A4C;color:#1E7A4C;border-style:solid;
   }
 
-  .clear-meta{font-size:12.5px;color:var(--muted);margin-left:4px;}
-  .clear-note{font-size:12px;color:var(--muted);margin:6px 0 0;}
-
   .submit-bar{
     display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:20px 22px;
     background:var(--card);border:1px solid var(--line);border-radius:6px;margin-top:18px;
@@ -216,10 +213,6 @@
             <div class="field">
               <label for="reportDate">Date</label>
               <input type="date" id="reportDate" required>
-            </div>
-            <div class="field full">
-              <label>Detected airport</label>
-              <span id="detectedAirport" style="font-size:14px;color:var(--muted);">Not yet detected (will auto-detect on first cleared flight)</span>
             </div>
           </div>
         </fieldset>
@@ -438,9 +431,7 @@
           <label>Flight cleared <span style="color:#E9614F;">*</span></label>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <button type="button" class="ghost-btn small clear-btn">Mark flight cleared</button>
-            <span class="clear-meta" style="display:none;"></span>
           </div>
-          <p class="clear-note">Note: marking a flight cleared records your device's GPS location and time. Your browser will ask for location permission.</p>
           <input type="hidden" data-field="clearedAt">
           <input type="hidden" data-field="clearedLat">
           <input type="hidden" data-field="clearedLng">
@@ -462,7 +453,6 @@
     casesWrap.appendChild(makeCaseCard());
 
     const clearBtn = card.querySelector('.clear-btn');
-    const clearMeta = card.querySelector('.clear-meta');
     const clearedAtInput = card.querySelector('[data-field="clearedAt"]');
     const clearedLatInput = card.querySelector('[data-field="clearedLat"]');
     const clearedLngInput = card.querySelector('[data-field="clearedLng"]');
@@ -477,8 +467,6 @@
       clearedStatusInput.value = '';
       clearBtn.textContent = 'Mark flight cleared';
       clearBtn.classList.remove('cleared');
-      clearMeta.textContent = '';
-      clearMeta.style.display = 'none';
       clearBtn.disabled = false;
     }
 
@@ -490,15 +478,7 @@
       clearedStatusInput.value = status;
       clearBtn.textContent = 'Flight cleared \u2713 (click to undo)';
       clearBtn.classList.add('cleared');
-      const d = new Date(when);
-      let meta = 'Cleared at ' + d.toLocaleString() + ' \u2014 ' + status;
-      meta += ' \u00b7 ' + lat + ', ' + lng;
-      clearMeta.textContent = meta;
-      clearMeta.style.display = 'inline';
       clearBtn.disabled = false;
-
-      const det = document.getElementById('detectedAirport');
-      if (det) det.textContent = airport + ' (auto-detected)';
     }
 
     clearBtn.addEventListener('click', () => {
@@ -702,7 +682,6 @@
       return;
     }
 
-    // Every flight must be marked as cleared with a GPS location (compulsory)
     const allFlights = flightsWrap.querySelectorAll('.flight-card');
     for (const fcard of allFlights) {
       const clearedAt = fcard.querySelector('[data-field="clearedAt"]')?.value || '';
@@ -784,8 +763,6 @@
     renumberAll();
     document.getElementById('controller').value = '';
     document.getElementById('reportDate').valueAsDate = new Date();
-    const det = document.getElementById('detectedAirport');
-    if (det) det.textContent = 'Not yet detected (will auto-detect on first cleared flight)';
     form.style.display = 'block';
     okScreen.style.display = 'none';
   });
