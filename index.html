@@ -4,181 +4,272 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Summertimes Travel — Daily Arrival Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --teal-deep:#0D3B3E;
-    --teal:#16615F;
-    --sun:#F2A93B;
-    --coral:#E9614F;
-    --paper:#FBF8F2;
-    --card:#FFFFFF;
-    --case:#FCFBF7;
-    --line:#E3DCCB;
-    --line-soft:#EAE4D6;
-    --ink:#1E2A28;
-    --muted:#6B7A76;
-    --ok:#1E7A4C;
+    --bg:#F4F6F5;
+    --surface:#FFFFFF;
+    --surface-alt:#F0F3F2;
+    --border:#E2E8E6;
+    --border-strong:#CFD8D5;
+    --text:#1A2421;
+    --muted:#5F6E6A;
+    --primary:#16615F;
+    --primary-dark:#0D3B3E;
+    --primary-soft:#E6F0EF;
+    --accent:#F2A93B;
+    --danger:#E9614F;
+    --danger-soft:#FDECEA;
+    --success:#1E7A4C;
+    --success-soft:#E8F3EC;
+    --radius-sm:8px;
+    --radius:14px;
+    --radius-lg:20px;
+    --shadow-sm:0 2px 8px rgba(13,59,62,.06);
+    --shadow:0 8px 24px rgba(13,59,62,.08);
+    --shadow-lg:0 16px 40px rgba(13,59,62,.12);
   }
   *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
   body{
-    margin:0;
-    background:var(--paper);
-    font-family:'Helvetica Neue', Arial, sans-serif;
-    color:var(--ink);
+    background:var(--bg);
+    font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;
+    color:var(--text);
     -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.5;
   }
   .strip{
     height:6px;
-    background:repeating-linear-gradient(90deg,var(--teal) 0 24px,var(--sun) 24px 32px);
+    background:linear-gradient(90deg,var(--primary) 0%,var(--accent) 100%);
   }
   header{
-    background:linear-gradient(135deg,var(--teal-deep) 0%,var(--teal) 100%);
+    background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);
     color:#fff;
-    padding:26px 20px 22px;
+    padding:32px 24px 28px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 80% 20%, rgba(242,169,59,.18), transparent 50%);
+    pointer-events:none;
   }
   .header-inner{
-    max-width:900px;
+    max-width:960px;
     margin:0 auto;
     display:flex;
     align-items:center;
-    gap:16px;
+    gap:18px;
+    position:relative;
   }
-  .mark{flex:none;width:44px;height:44px;}
-  .brand-name{font-size:19px;font-weight:800;letter-spacing:-0.01em;}
+  .mark{flex:none;width:48px;height:48px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2));}
+  .brand-name{font-size:20px;font-weight:800;letter-spacing:-0.02em;}
   .eyebrow{
-    text-transform:uppercase;letter-spacing:.14em;font-size:11px;
-    color:var(--sun);font-weight:700;margin:0;
+    text-transform:uppercase;letter-spacing:.16em;font-size:11px;
+    color:var(--accent);font-weight:700;margin:0;
   }
-  h1{margin:2px 0 0;font-size:22px;font-weight:700;letter-spacing:-0.01em;}
-  .tag{color:#CFE3DF;font-size:13px;margin-top:4px;}
+  h1{margin:4px 0 0;font-size:26px;font-weight:700;letter-spacing:-0.02em;}
+  .tag{color:rgba(255,255,255,.78);font-size:14px;margin-top:6px;}
 
-  main{max-width:900px;margin:0 auto;padding:24px 16px 70px;}
+  main{max-width:960px;margin:0 auto;padding:28px 20px 80px;}
 
   .panel{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:6px;
-    margin-bottom:18px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    margin-bottom:20px;
+    box-shadow:var(--shadow-sm);
   }
-  fieldset{border:0;margin:0;padding:20px 22px;}
+  fieldset{border:0;margin:0;padding:24px 26px;}
   legend{
-    font-size:12px;text-transform:uppercase;letter-spacing:.1em;
-    font-weight:700;color:var(--teal);padding:0 4px;
+    font-size:12px;text-transform:uppercase;letter-spacing:.12em;
+    font-weight:700;color:var(--primary);padding:0 6px;
   }
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;}
   .grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
-  .field{display:flex;flex-direction:column;gap:6px;}
+  .field{display:flex;flex-direction:column;gap:7px;}
   .field.full{grid-column:1 / -1;}
-  label{font-size:13px;font-weight:600;color:var(--ink);}
-  input[type=text],input[type=date],input[type=time],textarea{
-    font-family:inherit;font-size:15px;padding:10px 12px;
-    border:1px solid var(--line);border-radius:3px;background:#FCFBF9;color:var(--ink);
+  label{font-size:13px;font-weight:600;color:var(--text);}
+  input[type=text],input[type=date],input[type=time],textarea,select{
+    font-family:inherit;font-size:15px;padding:12px 14px;
+    border:1px solid var(--border);border-radius:var(--radius-sm);
+    background:#FCFCFB;color:var(--text);
+    transition:border-color .15s, box-shadow .15s, background .15s;
   }
-  input:focus,textarea:focus{outline:2px solid var(--sun);outline-offset:1px;background:#fff;}
-  textarea{resize:vertical;min-height:56px;}
+  input:focus,textarea:focus,select:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(22,97,95,.15);
+    background:#fff;
+  }
+  textarea{resize:vertical;min-height:60px;}
 
-  .time-select{display:flex;align-items:center;gap:6px;}
+  .time-select{display:flex;align-items:center;gap:8px;}
   .time-select select{
-    font-family:inherit;font-size:15px;padding:10px 8px;
-    border:1px solid var(--line);border-radius:3px;background:#FCFBF9;color:var(--ink);
-    flex:1;min-width:0;
+    font-family:inherit;font-size:15px;padding:12px 10px;
+    border:1px solid var(--border);border-radius:var(--radius-sm);
+    background:#FCFCFB;color:var(--text);flex:1;min-width:0;
+    transition:border-color .15s, box-shadow .15s;
   }
   .time-select select:invalid{color:var(--muted);}
-  .time-select select:focus{outline:2px solid var(--sun);outline-offset:1px;background:#fff;}
+  .time-select select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(22,97,95,.15);background:#fff;}
   .time-select span{color:var(--muted);font-weight:700;}
 
-  .checks{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px;}
+  .checks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px;}
   .chk{
-    display:flex;align-items:center;gap:9px;padding:9px 11px;
-    border:1px solid var(--line);border-radius:3px;background:#fff;
-    cursor:pointer;transition:border-color .15s,background .15s;
+    display:flex;align-items:center;gap:10px;padding:11px 13px;
+    border:1px solid var(--border);border-radius:var(--radius-sm);
+    background:#fff;cursor:pointer;
+    transition:border-color .15s,background .15s,transform .12s;
   }
-  .chk:has(input:checked){border-color:var(--sun);background:#FBF1E1;}
-  .chk input{width:16px;height:16px;accent-color:var(--teal);flex:none;}
-  .chk span{font-size:13.5px;}
+  .chk:hover{border-color:var(--border-strong);}
+  .chk:has(input:checked){border-color:var(--accent);background:#FBF4E6;}
+  .chk input{width:17px;height:17px;accent-color:var(--primary);flex:none;}
+  .chk span{font-size:13.5px;font-weight:500;}
 
-  #flightsWrap{display:flex;flex-direction:column;gap:18px;}
+  #flightsWrap{display:flex;flex-direction:column;gap:20px;}
   .flight-card{
-    background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    animation:fadeIn .3s ease;
   }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
   .flight-head{
-    display:flex;align-items:center;justify-content:space-between;
-    background:var(--teal-deep);color:#fff;padding:11px 18px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);
+    color:#fff;padding:12px 20px;flex-wrap:wrap;
   }
-  .flight-head .num{font-weight:800;font-size:14.5px;letter-spacing:.02em;}
-  .flight-actions{display:flex;gap:8px;}
+  .flight-id{
+    display:flex;align-items:center;gap:10px;flex:1;min-width:0;flex-wrap:wrap;
+  }
+  .flight-index{
+    font-weight:800;font-size:14px;letter-spacing:.02em;
+    background:rgba(255,255,255,.18);padding:5px 10px;border-radius:6px;
+    white-space:nowrap;
+  }
+  .flight-number-input{
+    flex:1;min-width:150px;max-width:260px;
+    font-family:inherit;font-size:14px;font-weight:600;padding:7px 11px;
+    border:1px solid rgba(255,255,255,.35);border-radius:var(--radius-sm);
+    background:rgba(255,255,255,.14);color:#fff;
+    transition:border-color .15s,background .15s;
+  }
+  .flight-number-input::placeholder{color:rgba(255,255,255,.65);font-weight:500;}
+  .flight-number-input:focus{
+    outline:none;border-color:#fff;background:rgba(255,255,255,.22);
+  }
+  .flight-head .clear-btn{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);
+    color:#fff;border-radius:var(--radius-sm);font-size:12.5px;padding:6px 12px;
+    font-weight:600;cursor:pointer;transition:background .15s,transform .12s;white-space:nowrap;
+  }
+  .flight-head .clear-btn:hover{background:rgba(255,255,255,.24);transform:translateY(-1px);}
+  .flight-head .clear-btn.cleared{
+    background:var(--success-soft);color:var(--success);border-color:var(--success);
+  }
+  .flight-actions{display:flex;gap:8px;flex-wrap:wrap;}
   .icon-btn{
-    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:3px;
-    font-size:12px;padding:5px 10px;cursor:pointer;color:#fff;
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+    border-radius:var(--radius-sm);font-size:12.5px;padding:6px 12px;
+    cursor:pointer;color:#fff;font-weight:600;
+    transition:background .15s,transform .12s;
   }
-  .icon-btn.danger{background:rgba(233,97,79,.25);border-color:rgba(233,97,79,.6);}
-  .icon-btn:hover{background:rgba(255,255,255,.22);}
+  .icon-btn.danger{background:rgba(233,97,79,.28);border-color:rgba(233,97,79,.5);}
+  .icon-btn:hover{background:rgba(255,255,255,.24);transform:translateY(-1px);}
 
-  .flight-body{padding:18px 20px 20px;}
+  .flight-body{padding:22px 24px 24px;}
 
-  .cases-wrap{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+  .cases-wrap{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
   .case-card{
-    background:var(--case);border:1px solid var(--line-soft);border-radius:5px;overflow:hidden;
+    background:var(--surface-alt);border:1px solid var(--border);
+    border-radius:var(--radius);overflow:hidden;
+    transition:box-shadow .15s;
   }
+  .case-card:hover{box-shadow:var(--shadow-sm);}
   .case-head{
     display:flex;align-items:center;justify-content:space-between;
-    background:#F1ECDF;padding:8px 14px;border-bottom:1px solid var(--line-soft);
+    background:#EAF0EE;padding:10px 16px;border-bottom:1px solid var(--border);
   }
-  .case-head .num{font-weight:700;font-size:13px;color:var(--teal-deep);}
+  .case-head .num{font-weight:700;font-size:13.5px;color:var(--primary-dark);}
   .case-actions{display:flex;gap:6px;}
   .mini-btn{
-    background:#fff;border:1px solid var(--line);border-radius:3px;
-    font-size:11.5px;padding:4px 9px;cursor:pointer;color:var(--muted);
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+    font-size:12px;padding:5px 10px;cursor:pointer;color:var(--muted);font-weight:600;
+    transition:background .15s,color .15s;
   }
-  .mini-btn.danger{color:var(--coral);border-color:#F3CFC8;}
-  .mini-btn:hover{background:#FCFBF9;}
-  .case-body{padding:14px 16px 16px;}
+  .mini-btn.danger{color:var(--danger);border-color:#F3CFC8;}
+  .mini-btn:hover{background:#FCFBF9;color:var(--text);}
+  .case-body{padding:16px 18px 18px;}
 
-  .add-case-row{margin-top:8px;}
-  .add-flight-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .add-case-row{margin-top:10px;}
+  .add-flight-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;}
   .ghost-btn{
-    background:#fff;border:1.5px dashed var(--teal);color:var(--teal);
-    font-weight:700;font-size:14px;padding:11px 18px;border-radius:4px;cursor:pointer;
+    background:var(--surface);border:1.5px dashed var(--primary);color:var(--primary);
+    font-weight:700;font-size:14px;padding:12px 20px;border-radius:var(--radius-sm);
+    cursor:pointer;transition:background .15s,transform .12s;
   }
-  .ghost-btn:hover{background:#F1F7F6;}
+  .ghost-btn:hover{background:var(--primary-soft);transform:translateY(-1px);}
   .ghost-btn.small{
-    font-size:12.5px;padding:7px 13px;border-width:1.3px;
+    font-size:12.5px;padding:8px 14px;border-width:1.3px;
   }
   .ghost-btn.cleared{
-    background:#E8F3EC;border-color:#1E7A4C;color:#1E7A4C;border-style:solid;
+    background:var(--success-soft);border-color:var(--success);color:var(--success);border-style:solid;
   }
 
   .submit-bar{
-    display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:20px 22px;
-    background:var(--card);border:1px solid var(--line);border-radius:6px;margin-top:18px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:22px 26px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);margin-top:20px;box-shadow:var(--shadow-sm);
   }
   button.primary{
-    background:var(--teal);color:#fff;border:0;font-size:15px;font-weight:700;
-    padding:13px 28px;border-radius:4px;cursor:pointer;
+    background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);
+    color:#fff;border:0;font-size:15px;font-weight:700;
+    padding:13px 30px;border-radius:var(--radius-sm);cursor:pointer;
+    box-shadow:0 6px 16px rgba(22,97,95,.25);
+    transition:transform .12s,box-shadow .15s,opacity .15s;
   }
-  button.primary:hover{background:var(--teal-deep);}
-  button.primary:disabled{opacity:.6;cursor:default;}
+  button.primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(22,97,95,.3);}
+  button.primary:disabled{opacity:.6;cursor:default;transform:none;}
   .status{font-size:14px;font-weight:600;}
-  .status.err{color:#B3261E;}
+  .status.err{color:var(--danger);}
   .count-pill{
-    margin-left:auto;font-size:12.5px;color:var(--muted);
-    background:#F1ECDF;padding:6px 12px;border-radius:20px;
+    margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:600;
+    background:var(--surface-alt);padding:7px 14px;border-radius:999px;
+    border:1px solid var(--border);
   }
 
   #okScreen{
-    display:none;background:var(--card);border:1px solid var(--line);border-radius:6px;
-    padding:52px 24px;text-align:center;
+    display:none;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:60px 28px;text-align:center;
+    box-shadow:var(--shadow);
   }
-  #okScreen h2{margin:0 0 8px;color:var(--teal-deep);}
-  #okScreen p{color:var(--muted);margin:0 0 20px;}
-  #okScreen button{background:transparent;color:var(--teal);border:1px solid var(--teal);
-    font-weight:700;padding:11px 22px;border-radius:4px;cursor:pointer;}
+  #okScreen h2{margin:0 0 8px;color:var(--primary-dark);font-size:24px;}
+  #okScreen p{color:var(--muted);margin:0 0 24px;}
+  #okScreen button{
+    background:transparent;color:var(--primary);border:1.5px solid var(--primary);
+    font-weight:700;padding:12px 24px;border-radius:var(--radius-sm);cursor:pointer;
+    transition:background .15s;
+  }
+  #okScreen button:hover{background:var(--primary-soft);}
 
-  footer{max-width:900px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:12px;}
+  footer{max-width:960px;margin:0 auto;padding:0 20px 50px;color:var(--muted);font-size:12px;}
 
-  @media (max-width:600px){
+  @media (max-width:640px){
     .grid, .grid.cols-3{grid-template-columns:1fr;}
     .checks{grid-template-columns:1fr;}
+    header{padding:26px 20px 22px;}
+    h1{font-size:22px;}
+    fieldset{padding:20px 18px;}
+    .flight-body{padding:18px 18px 20px;}
+    .flight-head{padding:12px 16px;}
   }
 </style>
 </head>
@@ -385,7 +476,11 @@
     card.className = 'flight-card';
     card.innerHTML = `
       <div class="flight-head">
-        <span class="num">Flight ${flightSeq}</span>
+        <div class="flight-id">
+          <span class="flight-index">Flight ${flightSeq}</span>
+          <input type="text" data-field="flightNumber" class="flight-number-input" placeholder="Flight number e.g. EZY2901" required>
+          <button type="button" class="clear-btn">Mark flight cleared</button>
+        </div>
         <div class="flight-actions">
           <button type="button" class="icon-btn dup-flight-btn">Duplicate</button>
           <button type="button" class="icon-btn danger remove-flight-btn">Remove</button>
@@ -393,10 +488,6 @@
       </div>
       <div class="flight-body">
         <div class="grid cols-3">
-          <div class="field">
-            <label>Flight number</label>
-            <input type="text" data-field="flightNumber" placeholder="e.g. EZY2901" required>
-          </div>
           <div class="field">
             <label>Route</label>
             <input type="text" data-field="route" placeholder="e.g. BRS-PFO" required>
@@ -427,11 +518,7 @@
           </div>
         </div>
 
-        <div class="field full" style="margin-top:14px;">
-          <label>Flight cleared <span style="color:#E9614F;">*</span></label>
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <button type="button" class="ghost-btn small clear-btn">Mark flight cleared</button>
-          </div>
+        <div style="display:none;">
           <input type="hidden" data-field="clearedAt">
           <input type="hidden" data-field="clearedLat">
           <input type="hidden" data-field="clearedLng">
@@ -540,6 +627,9 @@
     card.querySelector('.dup-flight-btn').addEventListener('click', () => {
       const clone = makeFlightCard();
       card.after(clone);
+      const srcFlightNum = card.querySelector('[data-field="flightNumber"]');
+      const dstFlightNum = clone.querySelector('[data-field="flightNumber"]');
+      if (srcFlightNum && dstFlightNum) dstFlightNum.value = srcFlightNum.value;
       const srcInputs = card.querySelectorAll('.flight-body > .grid [data-field]');
       const dstInputs = clone.querySelectorAll('.flight-body > .grid [data-field]');
       srcInputs.forEach((src, i) => { dstInputs[i].value = src.value; });
@@ -552,7 +642,8 @@
   function renumberAll(){
     let totalCases = 0;
     [...flightsWrap.children].forEach((fcard, fi) => {
-      fcard.querySelector('.num').textContent = `Flight ${fi + 1}`;
+      const idx = fcard.querySelector('.flight-index');
+      if (idx) idx.textContent = `Flight ${fi + 1}`;
       const cases = fcard.querySelectorAll('.case-card');
       cases.forEach((ccard, ci) => {
         ccard.querySelector('.case-head .num').textContent = `Case ${ci + 1}`;
@@ -604,7 +695,7 @@
     textHtml += `<h2 style="margin:0 0 16px;color:#0D3B3E;">${escapeHtml(titleLine)}</h2>`;
 
     [...flightsWrap.children].forEach((fcard) => {
-      const fget = (f) => fcard.querySelector(`.flight-body > .grid [data-field="${f}"]`)?.value.trim() || '';
+      const fget = (f) => fcard.querySelector(`[data-field="${f}"]`)?.value.trim() || '';
       const flightNumber = fget('flightNumber');
       const route = fget('route');
       const schedTime = getTime(fcard, 'schedTime');
@@ -682,7 +773,21 @@
       return;
     }
 
+    // Ensure every flight has a flight number entered
     const allFlights = flightsWrap.querySelectorAll('.flight-card');
+    for (const fcard of allFlights) {
+      const fn = fcard.querySelector('[data-field="flightNumber"]')?.value.trim() || '';
+      if (!fn) {
+        statusMsg.textContent = 'Please enter a flight number for every flight.';
+        statusMsg.className = 'status err';
+        fcard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        fcard.style.outline = '2px solid #E9614F';
+        setTimeout(() => { fcard.style.outline = ''; }, 2500);
+        return;
+      }
+    }
+
+    // Every flight must be marked as cleared with a GPS location (compulsory)
     for (const fcard of allFlights) {
       const clearedAt = fcard.querySelector('[data-field="clearedAt"]')?.value || '';
       const clearedLat = fcard.querySelector('[data-field="clearedLat"]')?.value || '';
