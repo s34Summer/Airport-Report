@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summertimes Travel — Daily Arrival Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F6F5;
+    --surface:#FFFFFF;
+    --surface-alt:#F0F3F2;
+    --border:#E2E8E6;
+    --border-strong:#CFD8D5;
+    --text:#1A2421;
+    --muted:#5F6E6A;
+    --primary:#16615F;
+    --primary-dark:#0D3B3E;
+    --primary-soft:#E6F0EF;
+    --accent:#F2A93B;
+    --danger:#E9614F;
+    --danger-soft:#FDECEA;
+    --success:#1E7A4C;
+    --success-soft:#E8F3EC;
+    --radius-sm:8px;
+    --radius:14px;
+    --radius-lg:20px;
+    --shadow-sm:0 2px 8px rgba(13,59,62,.06);
+    --shadow:0 8px 24px rgba(13,59,62,.08);
+    --shadow-lg:0 16px 40px rgba(13,59,62,.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.5;
+  }
+  .strip{
+    height:6px;
+    background:linear-gradient(90deg,var(--primary) 0%,var(--accent) 100%);
+  }
+  header{
+    background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);
+    color:#fff;
+    padding:32px 24px 28px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 80% 20%, rgba(242,169,59,.18), transparent 50%);
+    pointer-events:none;
+  }
+  .header-inner{
+    max-width:960px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    position:relative;
+  }
+  .mark{flex:none;width:48px;height:48px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2));}
+  .brand-name{font-size:20px;font-weight:800;letter-spacing:-0.02em;}
+  .eyebrow{
+    text-transform:uppercase;letter-spacing:.16em;font-size:11px;
+    color:var(--accent);font-weight:700;margin:0;
+  }
+  h1{margin:4px 0 0;font-size:26px;font-weight:700;letter-spacing:-0.02em;}
+  .tag{color:rgba(255,255,255,.78);font-size:14px;margin-top:6px;}
+
+  main{max-width:960px;margin:0 auto;padding:28px 20px 80px;}
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    margin-bottom:20px;
+    box-shadow:var(--shadow-sm);
+  }
+  fieldset{border:0;margin:0;padding:24px 26px;}
+  legend{
+    font-size:12px;text-transform:uppercase;letter-spacing:.12em;
+    font-weight:700;color:var(--primary);padding:0 6px;
+  }
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;}
+  .grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+  .field{display:flex;flex-direction:column;gap:7px;}
+  .field.full{grid-column:1 / -1;}
+  label{font-size:13px;font-weight:600;color:var(--text);}
+  input[type=text],input[type=date],input[type=time],textarea,select{
+    font-family:inherit;font-size:15px;padding:12px 14px;
+    border:1px solid var(--border);border-radius:var(--radius-sm);
+    background:#FCFCFB;color:var(--text);
+    transition:border-color .15s, box-shadow .15s, background .15s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(22,97,95,.15);
+    background:#fff;
+  }
+  textarea{resize:vertical;min-height:60px;}
+
+  .time-select{display:flex;align-items:center;gap:8px;}
+  .time-select select{
+    font-family:inherit;font-size:15px;padding:12px 10px;
+    border:1px solid var(--border);border-radius:var(--radius-sm);
+    background:#FCFCFB;color:var(--text);flex:1;min-width:0;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .time-select select:invalid{color:var(--muted);}
+  .time-select select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(22,97,95,.15);background:#fff;}
+  .time-select span{color:var(--muted);font-weight:700;}
+
+  .checks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px;}
+  .chk{
+    display:flex;align-items:center;gap:10px;padding:11px 13px;
+    border:1px solid var(--border);border-radius:var(--radius-sm);
+    background:#fff;cursor:pointer;
+    transition:border-color .15s,background .15s,transform .12s;
+  }
+  .chk:hover{border-color:var(--border-strong);}
+  .chk:has(input:checked){border-color:var(--accent);background:#FBF4E6;}
+  .chk input{width:17px;height:17px;accent-color:var(--primary);flex:none;}
+  .chk span{font-size:13.5px;font-weight:500;}
+
+  #flightsWrap{display:flex;flex-direction:column;gap:20px;}
+  .flight-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    animation:fadeIn .3s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .flight-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);
+    color:#fff;padding:12px 20px;flex-wrap:wrap;
+  }
+  .flight-id{
+    display:flex;align-items:center;gap:10px;flex:1;min-width:0;flex-wrap:wrap;
+  }
+  .flight-index{
+    font-weight:800;font-size:14px;letter-spacing:.02em;
+    background:rgba(255,255,255,.18);padding:5px 10px;border-radius:6px;
+    white-space:nowrap;color:#fff;
+  }
+  input.flight-number-input{
+    flex:1;min-width:150px;max-width:260px;
+    font-family:inherit;font-size:14px;font-weight:600;padding:7px 11px;
+    border:1px solid rgba(255,255,255,.35);border-radius:var(--radius-sm);
+    background:rgba(255,255,255,.14);color:#fff;
+    transition:border-color .15s,background .15s;
+  }
+  input.flight-number-input::placeholder{color:rgba(255,255,255,.65);}
+  input.flight-number-input:focus{
+    outline:none;border-color:#fff;background:rgba(255,255,255,.22);
+  }
+  .flight-head .clear-btn{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);
+    color:#fff;border-radius:var(--radius-sm);font-size:12.5px;padding:6px 12px;
+    font-weight:600;cursor:pointer;transition:background .15s,transform .12s;white-space:nowrap;
+  }
+  .flight-head .clear-btn:hover{background:rgba(255,255,255,.24);transform:translateY(-1px);}
+  .flight-head .clear-btn.cleared{
+    background:var(--success-soft);color:var(--success);border-color:var(--success);
+  }
+  .flight-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .icon-btn{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+    border-radius:var(--radius-sm);font-size:12.5px;padding:6px 12px;
+    cursor:pointer;color:#fff;font-weight:600;
+    transition:background .15s,transform .12s;
+  }
+  .icon-btn.danger{background:rgba(233,97,79,.28);border-color:rgba(233,97,79,.5);}
+  .icon-btn:hover{background:rgba(255,255,255,.24);transform:translateY(-1px);}
+
+  .flight-body{padding:22px 24px 24px;}
+
+  .cases-wrap{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
+  .case-card{
+    background:var(--surface-alt);border:1px solid var(--border);
+    border-radius:var(--radius);overflow:hidden;
+    transition:box-shadow .15s;
+  }
+  .case-card:hover{box-shadow:var(--shadow-sm);}
+  .case-head{
+    display:flex;align-items:center;justify-content:space-between;
+    background:#EAF0EE;padding:10px 16px;border-bottom:1px solid var(--border);
+  }
+  .case-head .num{font-weight:700;font-size:13.5px;color:var(--primary-dark);}
+  .case-actions{display:flex;gap:6px;}
+  .mini-btn{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+    font-size:12px;padding:5px 10px;cursor:pointer;color:var(--muted);font-weight:600;
+    transition:background .15s,color .15s;
+  }
+  .mini-btn.danger{color:var(--danger);border-color:#F3CFC8;}
+  .mini-btn:hover{background:#FCFBF9;color:var(--text);}
+  .case-body{padding:16px 18px 18px;}
+
+  .add-case-row{margin-top:10px;}
+  .add-flight-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;}
+  .ghost-btn{
+    background:var(--surface);border:1.5px dashed var(--primary);color:var(--primary);
+    font-weight:700;font-size:14px;padding:12px 20px;border-radius:var(--radius-sm);
+    cursor:pointer;transition:background .15s,transform .12s;
+  }
+  .ghost-btn:hover{background:var(--primary-soft);transform:translateY(-1px);}
+  .ghost-btn.small{
+    font-size:12.5px;padding:8px 14px;border-width:1.3px;
+  }
+  .ghost-btn.cleared{
+    background:var(--success-soft);border-color:var(--success);color:var(--success);border-style:solid;
+  }
+
+  .submit-bar{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:22px 26px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);margin-top:20px;box-shadow:var(--shadow-sm);
+  }
+  button.primary{
+    background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);
+    color:#fff;border:0;font-size:15px;font-weight:700;
+    padding:13px 30px;border-radius:var(--radius-sm);cursor:pointer;
+    box-shadow:0 6px 16px rgba(22,97,95,.25);
+    transition:transform .12s,box-shadow .15s,opacity .15s;
+  }
+  button.primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(22,97,95,.3);}
+  button.primary:disabled{opacity:.6;cursor:default;transform:none;}
+  .status{font-size:14px;font-weight:600;}
+  .status.err{color:var(--danger);}
+  .count-pill{
+    margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:600;
+    background:var(--surface-alt);padding:7px 14px;border-radius:999px;
+    border:1px solid var(--border);
+  }
+
+  #okScreen{
+    display:none;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:60px 28px;text-align:center;
+    box-shadow:var(--shadow);
+  }
+  #okScreen h2{margin:0 0 8px;color:var(--primary-dark);font-size:24px;}
+  #okScreen p{color:var(--muted);margin:0 0 24px;}
+  #okScreen button{
+    background:transparent;color:var(--primary);border:1.5px solid var(--primary);
+    font-weight:700;padding:12px 24px;border-radius:var(--radius-sm);cursor:pointer;
+    transition:background .15s;
+  }
+  #okScreen button:hover{background:var(--primary-soft);}
+
+  footer{max-width:960px;margin:0 auto;padding:0 20px 50px;color:var(--muted);font-size:12px;}
+
+  @media (max-width:640px){
+    .grid, .grid.cols-3{grid-template-columns:1fr;}
+    .checks{grid-template-columns:1fr;}
+    header{padding:26px 20px 22px;}
+    h1{font-size:22px;}
+    fieldset{padding:20px 18px;}
+    .flight-body{padding:18px 18px 20px;}
+    .flight-head{padding:12px 16px;}
+  }
+</style>
+</head>
+<body>
+  <div class="strip"></div>
+  <header>
+    <div class="header-inner">
+      <svg class="mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="19" r="10" fill="#F2A93B"/>
+        <path d="M4 33c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 12 0" stroke="#FBF8F2" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+        <path d="M4 40c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 12 0" stroke="#FBF8F2" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".6"/>
+      </svg>
+      <div>
+        <div class="brand-name">Summertimes Travel</div>
+        <p class="eyebrow">Ground Operations</p>
+        <h1>Daily Arrival Report</h1>
+        <p class="tag">Log every flight and every booking case handled today, in one report.</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <form id="dailyForm">
+      <div class="panel">
+        <fieldset>
+          <legend>Report details</legend>
+          <div class="grid">
+            <div class="field">
+              <label for="controller">Airport controller name</label>
+              <input type="text" id="controller" required placeholder="Your name">
+            </div>
+            <div class="field">
+              <label for="reportDate">Date</label>
+              <input type="date" id="reportDate" required>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div id="flightsWrap"></div>
+
+      <div class="add-flight-row">
+        <button type="button" class="ghost-btn" id="addFlightBtn">+ Add flight</button>
+      </div>
+
+      <div class="submit-bar">
+        <button type="submit" class="primary" id="submitBtn">Submit daily report</button>
+        <span id="statusMsg" class="status"></span>
+        <span class="count-pill" id="countPill">1 flight &middot; 1 case logged</span>
+      </div>
+    </form>
+
+    <div id="okScreen">
+      <h2>Daily report submitted</h2>
+      <p>Thanks — today's arrival report has been sent.</p>
+      <button id="resetBtn" type="button">Start a new daily report</button>
+    </div>
+  </main>
+
+  <footer>Summertimes Travel &middot; Daily Arrival Report &middot; internal use</footer>
+
+<script>
+  const ENDPOINT = "https://script.google.com/macros/s/AKfycbz_b80_mLjreb37hMxUuPNtUy9QplpE6aDfSqVYQAG6F1SXFUogVqnieutJ2_XToxGCFg/exec";
+
+  const ISSUES = [
+    "No Show",
+    "Go Show",
+    "Excess Luggage",
+    "Delayed Flight",
+    "Damaged/Lost Luggage",
+    "No Departure needed",
+    "No arrival transfer, but they WANT departure transfer",
+    "Made own way, NO departure needed",
+    "Upgraded transfer to Vito",
+    "Wheelchair Assistance on departure",
+    "Signed waiver Form / No Departure",
+    "Other"
+  ];
+
+  const AIRPORTS = [
+    { name: 'Larnaca', lat: 34.8751, lng: 33.6249 },
+    { name: 'Paphos', lat: 34.7180, lng: 32.4857 }
+  ];
+  const AT_AIRPORT_KM = 2;
+
+  function toRad(x){ return x * Math.PI / 180; }
+  function distanceKm(lat1, lon1, lat2, lon2){
+    const R = 6371;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+  function nearestAirport(lat, lng){
+    let best = AIRPORTS[0], bestDist = Infinity;
+    AIRPORTS.forEach(a => {
+      const d = distanceKm(lat, lng, a.lat, a.lng);
+      if (d < bestDist) { bestDist = d; best = a; }
+    });
+    return { airport: best, distance: bestDist };
+  }
+
+  const flightsWrap = document.getElementById('flightsWrap');
+  const countPill = document.getElementById('countPill');
+  let flightSeq = 0;
+
+  function checksHTML(){
+    return ISSUES.map(label => `
+      <label class="chk">
+        <input type="checkbox" data-field="issue" value="${label}">
+        <span>${label}</span>
+      </label>
+    `).join('');
+  }
+
+  function hourOptionsHTML(){
+    let html = '<option value="" disabled selected>HH</option>';
+    for (let h = 0; h < 24; h++) {
+      const v = String(h).padStart(2, '0');
+      html += `<option value="${v}">${v}</option>`;
+    }
+    return html;
+  }
+
+  function minuteOptionsHTML(){
+    let html = '<option value="" disabled selected>MM</option>';
+    for (let m = 0; m < 60; m++) {
+      const v = String(m).padStart(2, '0');
+      html += `<option value="${v}">${v}</option>`;
+    }
+    return html;
+  }
+
+  function makeCaseCard(){
+    const card = document.createElement('div');
+    card.className = 'case-card';
+    card.innerHTML = `
+      <div class="case-head">
+        <span class="num">Case</span>
+        <div class="case-actions">
+          <button type="button" class="mini-btn dup-case-btn">Duplicate</button>
+          <button type="button" class="mini-btn danger remove-case-btn">Remove</button>
+        </div>
+      </div>
+      <div class="case-body">
+        <div class="grid cols-3">
+          <div class="field">
+            <label>Reference number</label>
+            <input type="text" data-field="reference" placeholder="Booking / job ref" required>
+          </div>
+          <div class="field">
+            <label>Client name</label>
+            <input type="text" data-field="clientName" required>
+          </div>
+          <div class="field">
+            <label>Client hotel</label>
+            <input type="text" data-field="clientHotel" required>
+          </div>
+          <div class="field full">
+            <label>Tour operator</label>
+            <input type="text" data-field="tourOperator" placeholder="e.g. Easy Jet, Dertour" required>
+          </div>
+        </div>
+
+        <div class="field full" style="margin-top:14px;">
+          <label>Issues (tick all that apply)</label>
+          <div class="checks">${checksHTML()}</div>
+        </div>
+
+        <div class="field full" style="margin-top:12px;">
+          <label>Comments</label>
+          <textarea data-field="comments" placeholder="Add any relevant detail..."></textarea>
+        </div>
+      </div>
+    `;
+
+    card.querySelector('.remove-case-btn').addEventListener('click', () => {
+      const casesWrap = card.parentElement;
+      if (casesWrap.children.length <= 1) return;
+      card.remove();
+      renumberAll();
+    });
+
+    card.querySelector('.dup-case-btn').addEventListener('click', () => {
+      const clone = makeCaseCard();
+      card.after(clone);
+      const srcInputs = card.querySelectorAll('input[data-field], textarea[data-field]');
+      const dstInputs = clone.querySelectorAll('input[data-field], textarea[data-field]');
+      srcInputs.forEach((src, i) => {
+        const dst = dstInputs[i];
+        if (src.type === 'checkbox') dst.checked = src.checked;
+        else dst.value = src.value;
+      });
+      renumberAll();
+    });
+
+    return card;
+  }
+
+  function makeFlightCard(){
+    flightSeq++;
+    const card = document.createElement('div');
+    card.className = 'flight-card';
+    card.innerHTML = `
+      <div class="flight-head">
+        <div class="flight-id">
+          <span class="flight-index">Flight ${flightSeq}</span>
+          <input type="text" data-field="flightNumber" class="flight-number-input" placeholder="Flight number e.g. EZY2901" required>
+          <button type="button" class="clear-btn">Mark flight cleared</button>
+        </div>
+        <div class="flight-actions">
+          <button type="button" class="icon-btn dup-flight-btn">Duplicate</button>
+          <button type="button" class="icon-btn danger remove-flight-btn">Remove</button>
+        </div>
+      </div>
+      <div class="flight-body">
+        <div class="grid cols-3">
+          <div class="field">
+            <label>Route</label>
+            <input type="text" data-field="route" placeholder="e.g. BRS-PFO" required>
+          </div>
+          <div class="field">
+            <label>Scheduled arrival time</label>
+            <div class="time-select">
+              <select data-field="schedTime_hh" required>${hourOptionsHTML()}</select>
+              <span>:</span>
+              <select data-field="schedTime_mm" required>${minuteOptionsHTML()}</select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Actual arrival time</label>
+            <div class="time-select">
+              <select data-field="arrivalTime_hh" required>${hourOptionsHTML()}</select>
+              <span>:</span>
+              <select data-field="arrivalTime_mm" required>${minuteOptionsHTML()}</select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Time bus left</label>
+            <div class="time-select">
+              <select data-field="busLeft_hh" required>${hourOptionsHTML()}</select>
+              <span>:</span>
+              <select data-field="busLeft_mm" required>${minuteOptionsHTML()}</select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:none;">
+          <input type="hidden" data-field="clearedAt">
+          <input type="hidden" data-field="clearedLat">
+          <input type="hidden" data-field="clearedLng">
+          <input type="hidden" data-field="clearedAirport">
+          <input type="hidden" data-field="clearedStatus">
+        </div>
+
+        <div class="field full" style="margin-top:16px;">
+          <label>Booking cases for this flight</label>
+          <div class="cases-wrap"></div>
+          <div class="add-case-row">
+            <button type="button" class="ghost-btn small add-case-btn">+ Add case</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const casesWrap = card.querySelector('.cases-wrap');
+    casesWrap.appendChild(makeCaseCard());
+
+    const clearBtn = card.querySelector('.clear-btn');
+    const clearedAtInput = card.querySelector('[data-field="clearedAt"]');
+    const clearedLatInput = card.querySelector('[data-field="clearedLat"]');
+    const clearedLngInput = card.querySelector('[data-field="clearedLng"]');
+    const clearedAirportInput = card.querySelector('[data-field="clearedAirport"]');
+    const clearedStatusInput = card.querySelector('[data-field="clearedStatus"]');
+
+    function setUncleared() {
+      clearedAtInput.value = '';
+      clearedLatInput.value = '';
+      clearedLngInput.value = '';
+      clearedAirportInput.value = '';
+      clearedStatusInput.value = '';
+      clearBtn.textContent = 'Mark flight cleared';
+      clearBtn.classList.remove('cleared');
+      clearBtn.disabled = false;
+    }
+
+    function setCleared(when, lat, lng, airport, status) {
+      clearedAtInput.value = when;
+      clearedLatInput.value = lat;
+      clearedLngInput.value = lng;
+      clearedAirportInput.value = airport;
+      clearedStatusInput.value = status;
+      clearBtn.textContent = 'Flight cleared \u2713 (click to undo)';
+      clearBtn.classList.add('cleared');
+      clearBtn.disabled = false;
+    }
+
+    clearBtn.addEventListener('click', () => {
+      if (clearedAtInput.value) {
+        setUncleared();
+        return;
+      }
+      clearBtn.disabled = true;
+      clearBtn.textContent = 'Getting location\u2026';
+      statusMsg.textContent = '';
+      statusMsg.className = 'status';
+
+      if (!navigator.geolocation) {
+        statusMsg.textContent = 'This browser does not support location services. GPS is required to mark a flight cleared.';
+        statusMsg.className = 'status err';
+        clearBtn.textContent = 'Mark flight cleared';
+        clearBtn.disabled = false;
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const { airport, distance } = nearestAirport(lat, lng);
+          const atAirport = distance <= AT_AIRPORT_KM;
+          const status = atAirport
+            ? 'At ' + airport.name + ' airport'
+            : 'Not at airport (' + distance.toFixed(1) + ' km from ' + airport.name + ')';
+          setCleared(
+            new Date().toISOString(),
+            lat.toFixed(6),
+            lng.toFixed(6),
+            airport.name,
+            status
+          );
+        },
+        () => {
+          statusMsg.textContent = 'Location permission is required to mark a flight cleared. Please allow location access in your browser and try again.';
+          statusMsg.className = 'status err';
+          clearBtn.textContent = 'Mark flight cleared';
+          clearBtn.disabled = false;
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    card.querySelector('.add-case-btn').addEventListener('click', () => {
+      casesWrap.appendChild(makeCaseCard());
+      renumberAll();
+    });
+
+    card.querySelector('.remove-flight-btn').addEventListener('click', () => {
+      if (flightsWrap.children.length <= 1) return;
+      card.remove();
+      renumberAll();
+    });
+
+    card.querySelector('.dup-flight-btn').addEventListener('click', () => {
+      const clone = makeFlightCard();
+      card.after(clone);
+      const srcFlightNum = card.querySelector('[data-field="flightNumber"]');
+      const dstFlightNum = clone.querySelector('[data-field="flightNumber"]');
+      if (srcFlightNum && dstFlightNum) dstFlightNum.value = srcFlightNum.value;
+      const srcInputs = card.querySelectorAll('.flight-body > .grid [data-field]');
+      const dstInputs = clone.querySelectorAll('.flight-body > .grid [data-field]');
+      srcInputs.forEach((src, i) => { dstInputs[i].value = src.value; });
+      renumberAll();
+    });
+
+    return card;
+  }
+
+  function renumberAll(){
+    let totalCases = 0;
+    [...flightsWrap.children].forEach((fcard, fi) => {
+      const idx = fcard.querySelector('.flight-index');
+      if (idx) idx.textContent = `Flight ${fi + 1}`;
+      const cases = fcard.querySelectorAll('.case-card');
+      cases.forEach((ccard, ci) => {
+        ccard.querySelector('.case-head .num').textContent = `Case ${ci + 1}`;
+        totalCases++;
+      });
+    });
+    const fCount = flightsWrap.children.length;
+    countPill.textContent = `${fCount} flight${fCount > 1 ? 's' : ''} \u00b7 ${totalCases} case${totalCases > 1 ? 's' : ''} logged`;
+  }
+
+  document.getElementById('addFlightBtn').addEventListener('click', () => {
+    flightsWrap.appendChild(makeFlightCard());
+    renumberAll();
+  });
+
+  flightsWrap.appendChild(makeFlightCard());
+  renumberAll();
+
+  document.getElementById('reportDate').valueAsDate = new Date();
+
+  function escapeHtml(str){
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function formatDM(dateStr){
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${dd}/${mm}`;
+  }
+
+  function getTime(fcard, field){
+    const hh = fcard.querySelector(`.flight-body > .grid [data-field="${field}_hh"]`)?.value || '';
+    const mm = fcard.querySelector(`.flight-body > .grid [data-field="${field}_mm"]`)?.value || '';
+    if (!hh || !mm) return '';
+    return `${hh}.${mm}`;
+  }
+
+  function buildSummary(){
+    const date = document.getElementById('reportDate').value;
+    const titleLine = `ARRIVALS ${formatDM(date)}`;
+
+    let textPlain = `${titleLine}\n\n`;
+    let textHtml = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1E2A28;line-height:1.5;">`;
+    textHtml += `<h2 style="margin:0 0 16px;color:#0D3B3E;">${escapeHtml(titleLine)}</h2>`;
+
+    [...flightsWrap.children].forEach((fcard) => {
+      const fget = (f) => fcard.querySelector(`[data-field="${f}"]`)?.value.trim() || '';
+      const flightNumber = fget('flightNumber');
+      const route = fget('route');
+      const schedTime = getTime(fcard, 'schedTime');
+      const arrivalTime = getTime(fcard, 'arrivalTime');
+      const busLeft = getTime(fcard, 'busLeft');
+
+      const clearedAt = fcard.querySelector('[data-field="clearedAt"]')?.value || '';
+      const clearedLat = fcard.querySelector('[data-field="clearedLat"]')?.value || '';
+      const clearedLng = fcard.querySelector('[data-field="clearedLng"]')?.value || '';
+      const clearedStatus = fcard.querySelector('[data-field="clearedStatus"]')?.value || '';
+
+      const headerParts = [flightNumber, route, schedTime].filter(Boolean).join(' ');
+      let header = headerParts;
+      if (arrivalTime) header += ` Arrived at ${arrivalTime}`;
+      if (busLeft) header += ` Bus left at ${busLeft}`;
+      header = header.trim();
+
+      textPlain += `${header}\n`;
+      textHtml += `<p style="margin:16px 0 4px;"><strong><u>${escapeHtml(header)}</u></strong></p>`;
+
+      if (clearedAt) {
+        const clearedWhen = new Date(clearedAt).toLocaleString();
+        let clearedLine = `Flight cleared at ${clearedWhen}`;
+        if (clearedStatus) clearedLine += ` \u2014 ${clearedStatus}`;
+        if (clearedLat && clearedLng) clearedLine += ` (${clearedLat}, ${clearedLng})`;
+        textPlain += `${clearedLine}\n`;
+        textHtml += `<div style="margin:2px 0 6px;font-style:italic;color:#1E7A4C;">${escapeHtml(clearedLine)}</div>`;
+      }
+
+      const cases = fcard.querySelectorAll('.case-card');
+      cases.forEach((ccard) => {
+        const cget = (f) => ccard.querySelector(`[data-field="${f}"]`)?.value.trim() || '';
+        const issues = [...ccard.querySelectorAll('input[data-field="issue"]:checked')].map(c => c.value);
+
+        const reference = cget('reference') || '(no ref)';
+        const tourOperator = cget('tourOperator');
+        const clientName = cget('clientName') || '(no name)';
+        const clientHotel = cget('clientHotel');
+        const comments = cget('comments');
+
+       const refPart = `REF.${reference}`;
+       let restPart = '';
+       if (tourOperator) restPart += ` ${tourOperator}`;
+       restPart += ` - ${clientName}`;
+       if (clientHotel) restPart += ` @ ${clientHotel}`;
+       if (issues.length) restPart += `, ${issues.join(', ')}.`;
+       if (comments) restPart += ` ${comments}`;
+
+      const line = refPart + restPart;
+      textPlain += `${line}\n`;
+      textHtml += `<div><strong style="background-color:#FFFF00; color:#000000; padding:1px 4px;">${escapeHtml(refPart)}</strong>${escapeHtml(restPart)}</div>`;
+      });
+      textPlain += `\n`;
+      });
+
+    textHtml += `</div>`;
+
+    return { textPlain, textHtml };
+  }
+
+  const form = document.getElementById('dailyForm');
+  const statusMsg = document.getElementById('statusMsg');
+  const submitBtn = document.getElementById('submitBtn');
+  const okScreen = document.getElementById('okScreen');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    statusMsg.textContent = '';
+    statusMsg.className = 'status';
+
+    const controller = document.getElementById('controller').value.trim();
+    if (!controller) {
+      statusMsg.textContent = 'Please enter the airport controller name.';
+      statusMsg.className = 'status err';
+      return;
+    }
+
+    const allFlights = flightsWrap.querySelectorAll('.flight-card');
+    for (const fcard of allFlights) {
+      const fn = fcard.querySelector('[data-field="flightNumber"]')?.value.trim() || '';
+      if (!fn) {
+        statusMsg.textContent = 'Please enter a flight number for every flight.';
+        statusMsg.className = 'status err';
+        fcard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        fcard.style.outline = '2px solid #E9614F';
+        setTimeout(() => { fcard.style.outline = ''; }, 2500);
+        return;
+      }
+    }
+
+    for (const fcard of allFlights) {
+      const clearedAt = fcard.querySelector('[data-field="clearedAt"]')?.value || '';
+      const clearedLat = fcard.querySelector('[data-field="clearedLat"]')?.value || '';
+      const clearedLng = fcard.querySelector('[data-field="clearedLng"]')?.value || '';
+      if (!clearedAt || !clearedLat || !clearedLng) {
+        statusMsg.textContent = 'Every flight must be marked as cleared with location access before submitting.';
+        statusMsg.className = 'status err';
+        fcard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        fcard.style.outline = '2px solid #E9614F';
+        setTimeout(() => { fcard.style.outline = ''; }, 2500);
+        return;
+      }
+    }
+
+    const allCases = flightsWrap.querySelectorAll('.case-card');
+    for (const ccard of allCases) {
+      const anyChecked = ccard.querySelector('input[data-field="issue"]:checked');
+      if (!anyChecked) {
+        statusMsg.textContent = 'Every case needs at least one issue ticked.';
+        statusMsg.className = 'status err';
+        ccard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        ccard.style.outline = '2px solid #E9614F';
+        setTimeout(() => { ccard.style.outline = ''; }, 2500);
+        return;
+      }
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+
+    const { textPlain, textHtml } = buildSummary();
+    const date = document.getElementById('reportDate').value;
+    const totalCases = flightsWrap.querySelectorAll('.case-card').length;
+
+    const payload = new FormData();
+    payload.append('_subject', `Daily Arrival Report — ${controller} — ${date}`);
+    payload.append('Controller', controller);
+    payload.append('Date', date);
+    payload.append('Flights Logged', flightsWrap.children.length);
+    payload.append('Cases Logged', totalCases);
+    payload.append('Report', textPlain);
+    payload.append('ReportHtml', textHtml);
+
+    [...flightsWrap.children].forEach((fcard, i) => {
+      const clearedAt = fcard.querySelector('[data-field="clearedAt"]')?.value || '';
+      const clearedLat = fcard.querySelector('[data-field="clearedLat"]')?.value || '';
+      const clearedLng = fcard.querySelector('[data-field="clearedLng"]')?.value || '';
+      const clearedAirport = fcard.querySelector('[data-field="clearedAirport"]')?.value || '';
+      const clearedStatus = fcard.querySelector('[data-field="clearedStatus"]')?.value || '';
+      payload.append(`Flight ${i + 1} Cleared At`, clearedAt);
+      payload.append(`Flight ${i + 1} Cleared Lat`, clearedLat);
+      payload.append(`Flight ${i + 1} Cleared Lng`, clearedLng);
+      payload.append(`Flight ${i + 1} Cleared Airport`, clearedAirport);
+      payload.append(`Flight ${i + 1} Cleared Status`, clearedStatus);
+    });
+
+    try {
+      await fetch(ENDPOINT, {
+        method: 'POST',
+        body: payload,
+        mode: 'no-cors'
+      });
+      form.style.display = 'none';
+      okScreen.style.display = 'block';
+    } catch (err) {
+      statusMsg.textContent = 'Something went wrong — please try again.';
+      statusMsg.className = 'status err';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit daily report';
+    }
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    flightsWrap.innerHTML = '';
+    flightSeq = 0;
+    flightsWrap.appendChild(makeFlightCard());
+    renumberAll();
+    document.getElementById('controller').value = '';
+    document.getElementById('reportDate').valueAsDate = new Date();
+    form.style.display = 'block';
+    okScreen.style.display = 'none';
+  });
+</script>
+</body>
+</html>
